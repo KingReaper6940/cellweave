@@ -11,4 +11,4 @@ export function validate(table){
  return table;
 }
 export function clone(t){validate(t);return {cells:t.cells.map(r=>[...r]),align:[...t.align]};}
-export function textInput(s){if(typeof s!=='string'||s.length>LIMITS.text)throw Error('Input must be at most 100,000 UTF-16 units.');return s.replace(/^\uFEFF/u,'').replace(/\r\n?/g,'\n');}
+export function textInput(s){if(typeof s!=='string'||s.length>1500000)throw Error('Source must be at most 1,500,000 UTF-16 units.');return s.replace(/^\uFEFF/u,'').replace(/\r\n?/g,'\n');}

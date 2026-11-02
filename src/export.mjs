@@ -6,7 +6,7 @@ export function literalCell(s){
  return [...s].map(c=>{const n=c.codePointAt(0);return n===32||n>=33&&n<=126&&/[^a-z0-9]/i.test(c)?'&#'+n+';':c;}).join('');
 }
 export function markdown(table){
- validate(table);const matrix=table.cells.map(r=>r.map(literalCell)),widths=table.align.map((_,c)=>Math.max(3,...matrix.map(r=>r[c].length)));
+ validate(table);const matrix=table.cells.map(r=>r.map(literalCell)),widths=table.align.map((_,c)=>Math.min(60,Math.max(3,...matrix.map(r=>r[c].length))));
  const row=r=>'| '+r.map((v,c)=>v.padEnd(widths[c])).join(' | ')+' |';
  const delimiter=table.align.map((a,c)=>a==='left'?':'+ '-'.repeat(widths[c]-1):a==='right'?'-'.repeat(widths[c]-1)+':':a==='center'?':'+ '-'.repeat(widths[c]-2)+':':'-'.repeat(widths[c]));
  return [row(matrix[0]),row(delimiter),...matrix.slice(1).map(row)].join('\n')+'\n';

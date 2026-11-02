@@ -1,10 +1,11 @@
 import {markdown as parseMarkdown,tsv as parseTsv} from './import.mjs';
 import {markdown,tsv,html,report} from './export.mjs';
 import {History} from './edit.mjs';
+import {attachFiles} from './handoff.mjs';
 import {sample} from './example.mjs';
 export function mount(doc,env={}){
  const $=id=>doc.getElementById(id),history=new History(sample),urls=env.URL??globalThis.URL;
- let page=0,downloadUrl=null,revision=0;
+ let page=0,downloadUrl=null,projectUrl=null,revision=0;
  const say=(message,error=false)=>{$('status').textContent=message;$('status').classList.toggle('error',error);};
  function output(){
  const t=history.current,type=$('output-format').value,spread=tsv(t,$('guard').checked);
@@ -12,6 +13,9 @@ export function mount(doc,env={}){
  $('export-note').textContent=type==='tsv'?(spread.guarded+' formula-like cells prefixed. Spreadsheet apps may still reinterpret text; keep JSON for exact values.'):type==='markdown'?'Literal output: punctuation and spaces use character references. This is not a rich Markdown preview.':type==='html'?'Escaped plain-text table. No scripts, styles, links or embedded content.':'Exact editable cell text and column alignment; history is not included.';
  $('guard').disabled=type!=='tsv';
  if(downloadUrl)urls.revokeObjectURL(downloadUrl);
+ if(projectUrl)urls.revokeObjectURL(projectUrl);
+ projectUrl=urls.createObjectURL(new Blob([JSON.stringify(report(t),null,2)+'\n'],{type:'application/json'}));
+ $('save-project').href=projectUrl;
  downloadUrl=urls.createObjectURL(new Blob([$('output').value],{type:type==='html'?'text/html':type==='json'?'application/json':'text/plain;charset=utf-8'}));
  $('download').href=downloadUrl;$('download').download='cellweave-table.'+({markdown:'md',tsv:'tsv',html:'html',json:'json'}[type]);
  }
@@ -55,6 +59,8 @@ export function mount(doc,env={}){
  $('output-format').addEventListener('change',output);$('guard').addEventListener('change',output);
  $('copy').addEventListener('click',async()=>{const text=$('output').value;try{await (env.clipboard??globalThis.navigator.clipboard).writeText(text);say('Output copied.');}catch{say('Clipboard unavailable. Select the output text to copy it, or download the file.',true);}});
  render();
- return {history,render,say,change,get revision(){return revision;},dispose(){if(downloadUrl)urls.revokeObjectURL(downloadUrl);}};
+ const app={history,render,say,change,get revision(){return revision;},dispose(){if(downloadUrl)urls.revokeObjectURL(downloadUrl);
+ if(projectUrl)urls.revokeObjectURL(projectUrl);}};
+ attachFiles(doc,app);return app;
 }
 if(typeof document!=='undefined')mount(document);
