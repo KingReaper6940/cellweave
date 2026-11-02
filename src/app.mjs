@@ -40,7 +40,13 @@ export function mount(doc,env={}){
  function render(){grid();selectors();$('undo').disabled=!history.past.length;$('redo').disabled=!history.future.length;output();}
  function change(fn,message){try{const changed=fn();if(changed!==false)revision++;render();say(message);}catch(e){say(e.message,true);}}
  function apply(action,message='Table updated. Undo is available.'){change(()=>history.apply(action),message);}
- $('grid').addEventListener('change',e=>{if(!e.target.matches('input[data-row]'))return;const {row,col}=e.target.dataset;apply({type:'cell',row:Number(row),col:Number(col),value:e.target.value});});
+ $('grid').addEventListener('input',()=>revision++);
+ $('grid').addEventListener('change',e=>{
+ if(!e.target.matches('input[data-row]'))return;
+ const row=Number(e.target.dataset.row),col=Number(e.target.dataset.col);
+ try{if(history.apply({type:'cell',row,col,value:e.target.value}))revision++;selectors();$('undo').disabled=!history.past.length;$('redo').disabled=!history.future.length;output();say('Cell updated. Undo is available.');}
+ catch(error){e.target.value=history.current.cells[row][col];say(error.message,true);}
+ });
  $('source').addEventListener('input',()=>revision++);
  $('input-format').addEventListener('change',()=>revision++);
  $('import').addEventListener('click',()=>change(()=>history.replace(($('input-format').value==='markdown'?parseMarkdown:parseTsv)($('source').value)),'Imported as plain text. Inline Markdown syntax is not rendered.'));

@@ -1,0 +1,12 @@
+import {mkdir,copyFile,rm} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {dirname,resolve} from 'node:path';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=resolve(root,'dist');
+if(dirname(out)!==root||out===root)throw Error('Unexpected build path.');
+const assets=["index.html","style.css","favicon.svg","src/model.mjs","src/import.mjs","src/edit.mjs","src/export.mjs","src/example.mjs","src/app.mjs","src/handoff.mjs"];
+for(const path of assets.filter(p=>p.endsWith('.mjs')))execFileSync(process.execPath,['--check',resolve(root,path)]);
+await rm(out,{recursive:true,force:true});
+await mkdir(resolve(out,'src'),{recursive:true});
+for(const path of assets)await copyFile(resolve(root,path),resolve(out,path));
+console.log('Built Cellweave: '+assets.length+' allowlisted assets.');
