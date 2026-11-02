@@ -1,0 +1,1 @@
+export const sample={cells:[['Delivery','Owner','Status'],['Design review','Mina','Ready'],['API | docs','Tao','In progress'],['Launch checklist','Rae','Next']],align:['left','none','center']};
