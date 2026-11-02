@@ -1,5 +1,7 @@
 # Cellweave
 
+[Open Cellweave](https://cellweave-three.vercel.app)
+
 Move small tables between notes, spreadsheets and documents. Edit the cells, leave the pipe syntax behind, and take the complete table with you.
 
 Cellweave is a browser-local **plain-text table workbench**. Import one Markdown table or a tab-separated spreadsheet range, reorder it, and export literal Markdown, TSV, HTML or an editable JSON project. No account or upload endpoint.
